@@ -11,7 +11,6 @@ Optional: OpenCV (frame analysis/annotation)
 One-Click Deployment
 # Install dependencies
 pip install -r requirements.txt
-
 # Launch the main program
 python main.py
 Module	Core Capabilities
