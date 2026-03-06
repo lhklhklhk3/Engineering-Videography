@@ -2,10 +2,12 @@ import sys
 import cv2
 from PySide6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget, 
                                QLabel, QPushButton, QLineEdit, QMessageBox, 
-                               QSpinBox, QFileDialog, QDialog, QHBoxLayout,
-                               QComboBox, QCheckBox, QMenuBar, QMenu, QToolButton)
+                               QSpinBox, QFileDialog, QHBoxLayout,
+                               QMenuBar, QMenu)
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QImage, QPixmap, QIcon
+from settings_dialog import SettingsDialog
+
 
 
 class MainWindow(QMainWindow):
@@ -544,126 +546,6 @@ class CameraWindow(QMainWindow):
         else:
             event.ignore()
 
-
-class SettingsDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("设置")
-        self.setWindowIcon(QIcon("app.ico"))
-        self.setGeometry(300, 300, 400, 350)
-        self.setModal(True)
-        
-        # 创建主布局
-        layout = QVBoxLayout()
-        self.setLayout(layout)
-        
-        # 创建标题
-        title_label = QLabel("系统设置")
-        title_label.setFont(QFont("Arial", 14, QFont.Bold))
-        title_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title_label)
-        
-        # 添加分隔线
-        separator = QLabel()
-        separator.setFrameStyle(QLabel.HLine | QLabel.Sunken)
-        layout.addWidget(separator)
-        
-        # 添加设置项：界面主题
-        theme_label = QLabel("界面主题:")
-        theme_label.setFont(QFont("Arial", 10, QFont.Bold))
-        layout.addWidget(theme_label)
-        
-        self.theme_combo = QComboBox()
-        self.theme_combo.addItems(["浅色主题", "深色主题", "系统默认"])
-        layout.addWidget(self.theme_combo)
-        
-        # 添加设置项：语言
-        language_label = QLabel("语言 / Language:")
-        language_label.setFont(QFont("Arial", 10, QFont.Bold))
-        layout.addWidget(language_label)
-        
-        self.language_combo = QComboBox()
-        self.language_combo.addItems(["简体中文", "English"])
-        layout.addWidget(self.language_combo)
-        
-        # 添加设置项：自动保存
-        self.auto_save_checkbox = QCheckBox("自动保存照片")
-        self.auto_save_checkbox.setChecked(True)
-        layout.addWidget(self.auto_save_checkbox)
-        
-        # 添加设置项：开机启动
-        self.auto_start_checkbox = QCheckBox("开机启动应用")
-        self.auto_start_checkbox.setChecked(False)
-        layout.addWidget(self.auto_start_checkbox)
-        
-        # 添加设置项：显示提示
-        self.show_tips_checkbox = QCheckBox("显示操作提示")
-        self.show_tips_checkbox.setChecked(True)
-        layout.addWidget(self.show_tips_checkbox)
-        
-        # 添加弹性空间
-        layout.addStretch()
-        
-        # 创建按钮布局
-        button_layout = QHBoxLayout()
-        layout.addLayout(button_layout)
-        
-        # 创建保存按钮
-        save_button = QPushButton("保存")
-        save_button.clicked.connect(self.save_settings)
-        save_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                padding: 10px 30px;
-                font-size: 12px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #45a049;
-            }
-        """)
-        button_layout.addWidget(save_button)
-        
-        # 创建取消按钮
-        cancel_button = QPushButton("取消")
-        cancel_button.clicked.connect(self.reject)
-        cancel_button.setStyleSheet("""
-            QPushButton {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 10px 30px;
-                font-size: 12px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #d32f2f;
-            }
-        """)
-        button_layout.addWidget(cancel_button)
-    
-    def save_settings(self):
-        # 这里可以添加保存设置的逻辑
-        theme = self.theme_combo.currentText()
-        language = self.language_combo.currentText()
-        auto_save = self.auto_save_checkbox.isChecked()
-        auto_start = self.auto_start_checkbox.isChecked()
-        show_tips = self.show_tips_checkbox.isChecked()
-        
-        # 显示保存成功消息
-        QMessageBox.information(
-            self, 
-            "设置已保存", 
-            f"主题: {theme}\n"
-            f"语言: {language}\n"
-            f"自动保存: {'开启' if auto_save else '关闭'}\n"
-            f"开机启动: {'开启' if auto_start else '关闭'}\n"
-            f"显示提示: {'开启' if show_tips else '关闭'}"
-        )
-        
-        self.accept()
 
 
 def main():
