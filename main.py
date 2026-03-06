@@ -34,9 +34,7 @@ class MainWindow(QMainWindow):
         self.camera2_enabled = False
         self.camera1_error = False
         self.camera2_error = False
-
-        # 应用配置
-        self.apply_config()
+        self.show_tips = True
 
         # 创建菜单栏
         self.menubar = self.menuBar()
@@ -197,6 +195,9 @@ class MainWindow(QMainWindow):
 
         # 状态栏
         self.statusBar().showMessage("就绪 - 请打开摄像头")
+
+        # 应用配置到UI（必须在所有UI元素创建完成之后调用）
+        self.apply_config()
 
     def create_camera_container(self, title):
         """创建摄像头显示容器"""
@@ -494,15 +495,111 @@ class MainWindow(QMainWindow):
         print(f"当前配置: {config}")
         print("-" * 50)
 
-        # 应用主题设置（暂时只是打印，可以根据实际需求实现）
+        # 应用主题设置
         if 'theme' in config:
-            print(f"主题设置为: {config['theme']}")
+            theme = config['theme']
+            print(f"应用主题设置: {theme}")
+            self.apply_theme(theme)
 
-        # 应用语言设置（暂时只是打印，可以根据实际需求实现）
+        # 应用语言设置
         if 'language' in config:
-            print(f"语言设置为: {config['language']}")
+            language = config['language']
+            print(f"应用语言设置: {language}")
+            self.apply_language(language)
 
-        # 其他配置可以根据需要在这里应用
+        # 应用显示提示设置
+        if 'show_tips' in config:
+            self.show_tips = config['show_tips']
+            print(f"应用显示提示设置: {self.show_tips}")
+
+        # 应用自动启动设置（暂时只记录，实际实现需要系统权限）
+        if 'auto_start' in config:
+            auto_start = config['auto_start']
+            print(f"自动启动设置: {auto_start} (需要系统权限实现)")
+
+        # 应用保存路径设置
+        if 'save_path' in config:
+            print(f"保存路径设置: {config['save_path']}")
+
+        # 应用摄像头尺寸设置
+        if 'camera1_width' in config and 'camera1_height' in config:
+            print(f"摄像头1尺寸设置: {config['camera1_width']} x {config['camera1_height']}")
+        if 'camera2_width' in config and 'camera2_height' in config:
+            print(f"摄像头2尺寸设置: {config['camera2_width']} x {config['camera2_height']}")
+
+        print("-" * 50)
+
+    def apply_theme(self, theme):
+        """应用主题设置到UI"""
+        if theme == '深色主题':
+            # 深色主题样式
+            dark_stylesheet = """
+                QMainWindow, QDialog {
+                    background-color: #2d2d2d;
+                    color: #ffffff;
+                }
+                QLabel {
+                    color: #ffffff;
+                }
+                QPushButton {
+                    background-color: #4CAF50;
+                    color: white;
+                    border: none;
+                    padding: 10px 30px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #45a049;
+                }
+                QPushButton:pressed {
+                    background-color: #3d8b40;
+                }
+                QPushButton:disabled {
+                    background-color: #555;
+                    color: #888;
+                }
+                QMenuBar {
+                    background-color: #333;
+                    color: #fff;
+                }
+                QMenu {
+                    background-color: #333;
+                    color: #fff;
+                }
+                QMenu::item:selected {
+                    background-color: #4CAF50;
+                }
+            """
+            self.setStyleSheet(dark_stylesheet)
+        elif theme == '浅色主题':
+            # 浅色主题样式（默认）
+            self.setStyleSheet("")
+        elif theme == '系统默认':
+            # 使用系统默认主题
+            self.setStyleSheet("")
+
+        self.statusBar().showMessage(f"已应用主题: {theme}", 2000)
+
+    def apply_language(self, language):
+        """应用语言设置到UI"""
+        if language == '简体中文':
+            # 简体中文界面
+            self.setWindowTitle("工程摄像拍照")
+            self.title_label.setText("双摄像头捕获系统")
+            self.open_camera_button.setText("打开摄像头")
+            self.close_camera_button.setText("关闭摄像头")
+            self.capture_button.setText("捕获照片")
+        elif language == 'English':
+            # 英文界面
+            self.setWindowTitle("Engineering Camera Capture")
+            self.title_label.setText("Dual Camera Capture System")
+            self.open_camera_button.setText("Open Cameras")
+            self.close_camera_button.setText("Close Cameras")
+            self.capture_button.setText("Capture Photos")
+
+        self.statusBar().showMessage(f"已应用语言: {language}", 2000)
 
     def closeEvent(self, event):
         reply = QMessageBox.question(
