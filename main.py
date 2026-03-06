@@ -102,6 +102,18 @@ class MainWindow(QMainWindow):
             self.second_window = SecondWindow(self)
         self.hide()
         self.second_window.show()
+    
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self, '确认退出',
+            '确定要退出程序吗？',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class SecondWindow(QMainWindow):
@@ -251,6 +263,18 @@ class SecondWindow(QMainWindow):
             self.camera_window = CameraWindow(self)
         self.hide()
         self.camera_window.show()
+    
+    def closeEvent(self, event):
+        reply = QMessageBox.question(
+            self, '确认关闭',
+            '确定要关闭此界面吗？',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
 class CameraWindow(QMainWindow):
@@ -448,10 +472,19 @@ class CameraWindow(QMainWindow):
             self.parent_window.show()
     
     def closeEvent(self, event):
-        # 窗口关闭时自动关闭摄像头
-        if self.cap is not None and self.cap.isOpened():
-            self.close_camera()
-        event.accept()
+        reply = QMessageBox.question(
+            self, '确认关闭',
+            '确定要关闭此界面吗？',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        if reply == QMessageBox.Yes:
+            # 窗口关闭时自动关闭摄像头
+            if self.cap is not None and self.cap.isOpened():
+                self.close_camera()
+            event.accept()
+        else:
+            event.ignore()
 
 
 def main():
