@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QWidget,
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtGui import QFont, QImage, QPixmap, QIcon
 from settings_dialog import SettingsDialog
+from config_manager import config_manager
 
 
 
@@ -15,9 +16,12 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("工程摄像拍照")
         self.setGeometry(100, 100, 400, 300)
-        
+
         # 设置窗口图标
         self.setWindowIcon(QIcon("app.ico"))
+
+        # 应用配置
+        self.apply_config()
         
         # 创建菜单栏
         self.menubar = self.menuBar()
@@ -155,8 +159,43 @@ class MainWindow(QMainWindow):
     
     def open_settings(self):
         dialog = SettingsDialog(self)
-        dialog.exec()
-    
+        result = dialog.exec()
+
+        # 如果用户保存了设置（返回 QDialog.Accepted）
+        if result == dialog.DialogCode.Accepted:
+            # 重新加载配置
+            config_manager.load_config()
+            print("-" * 50)
+            print("设置已更新并重新加载")
+            print(f"更新后的配置: {config_manager.config}")
+            print(f"配置文件: {config_manager.get_config_path()}")
+            print("-" * 50)
+
+            # 应用配置到应用程序
+            self.apply_config()
+
+    def apply_config(self):
+        """
+        应用配置到应用程序
+        根据配置更新应用程序的各项设置
+        """
+        config = config_manager.config
+
+        print("-" * 50)
+        print("应用配置到应用程序")
+        print(f"当前配置: {config}")
+        print("-" * 50)
+
+        # 应用主题设置（暂时只是打印，可以根据实际需求实现）
+        if 'theme' in config:
+            print(f"主题设置为: {config['theme']}")
+
+        # 应用语言设置（暂时只是打印，可以根据实际需求实现）
+        if 'language' in config:
+            print(f"语言设置为: {config['language']}")
+
+        # 其他配置可以根据需要在这里应用
+
     def closeEvent(self, event):
         reply = QMessageBox.question(
             self, '确认退出',
@@ -550,6 +589,14 @@ class CameraWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    
+    # 应用启动时加载配置
+    config_path = config_manager.get_config_path()
+    print(f"应用程序启动")
+    print(f"配置文件路径: {config_path}")
+    print(f"当前配置: {config_manager.config}")
+    print("-" * 50)
+    
     window = MainWindow()
     window.show()
     sys.exit(app.exec())

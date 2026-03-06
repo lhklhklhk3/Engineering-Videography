@@ -8,6 +8,7 @@ from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout,
                                QFileDialog, QLineEdit, QSpinBox)
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QIcon
+from config_manager import config_manager
 
 
 class SettingsDialog(QDialog):
@@ -207,6 +208,55 @@ class SettingsDialog(QDialog):
             }
         """)
         button_layout.addWidget(cancel_button)
+        
+        # 加载已保存的配置
+        self.load_from_config()
+    
+    def load_from_config(self):
+        """
+        从配置管理器加载配置并应用到对话框
+        """
+        config = config_manager.config
+        
+        # 应用主题设置
+        if 'theme' in config:
+            index = self.theme_combo.findText(config['theme'])
+            if index >= 0:
+                self.theme_combo.setCurrentIndex(index)
+        
+        # 应用语言设置
+        if 'language' in config:
+            index = self.language_combo.findText(config['language'])
+            if index >= 0:
+                self.language_combo.setCurrentIndex(index)
+        
+        # 应用自动保存设置
+        if 'auto_save' in config:
+            self.auto_save_checkbox.setChecked(config['auto_save'])
+        
+        # 应用保存路径设置
+        if 'save_path' in config:
+            self.save_path_edit.setText(config['save_path'])
+        
+        # 应用摄像头1尺寸设置
+        if 'camera1_width' in config:
+            self.camera1_width_spin.setValue(config['camera1_width'])
+        if 'camera1_height' in config:
+            self.camera1_height_spin.setValue(config['camera1_height'])
+        
+        # 应用摄像头2尺寸设置
+        if 'camera2_width' in config:
+            self.camera2_width_spin.setValue(config['camera2_width'])
+        if 'camera2_height' in config:
+            self.camera2_height_spin.setValue(config['camera2_height'])
+        
+        # 应用开机启动设置
+        if 'auto_start' in config:
+            self.auto_start_checkbox.setChecked(config['auto_start'])
+        
+        # 应用显示提示设置
+        if 'show_tips' in config:
+            self.show_tips_checkbox.setChecked(config['show_tips'])
     
     def browse_save_path(self):
         """
@@ -225,7 +275,7 @@ class SettingsDialog(QDialog):
     def save_settings(self):
         """
         保存设置
-        获取所有设置的值并显示保存成功消息
+        获取所有设置的值，保存到配置文件并显示保存成功消息
         """
         # 获取所有设置的值
         theme = self.theme_combo.currentText()
@@ -248,6 +298,32 @@ class SettingsDialog(QDialog):
             )
             return
         
+        # 创建配置字典
+        config = {
+            'theme': theme,
+            'language': language,
+            'auto_save': auto_save,
+            'save_path': save_path,
+            'camera1_width': camera1_width,
+            'camera1_height': camera1_height,
+            'camera2_width': camera2_width,
+            'camera2_height': camera2_height,
+            'auto_start': auto_start,
+            'show_tips': show_tips
+        }
+        
+        # 保存到配置管理器
+        config_manager.update(config)
+        save_success = config_manager.save_config()
+        
+        if not save_success:
+            QMessageBox.warning(
+                self,
+                "保存失败",
+                "配置文件保存失败，请检查权限！"
+            )
+            return
+        
         # 显示保存成功消息
         QMessageBox.information(
             self, 
@@ -259,7 +335,8 @@ class SettingsDialog(QDialog):
             f"摄像头1尺寸: {camera1_width} x {camera1_height}\n"
             f"摄像头2尺寸: {camera2_width} x {camera2_height}\n"
             f"开机启动: {'开启' if auto_start else '关闭'}\n"
-            f"显示提示: {'开启' if show_tips else '关闭'}"
+            f"显示提示: {'开启' if show_tips else '关闭'}\n\n"
+            f"配置已保存到: {config_manager.get_config_path()}"
         )
         
         self.accept()
