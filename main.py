@@ -400,22 +400,31 @@ class MainWindow(QMainWindow):
 
     def capture_photos(self):
         """捕获两个摄像头的照片"""
+        import os
+        from datetime import datetime
+
         captured_count = 0
         save_path = config_manager.get('save_path', './photos')
 
-        # 确保保存路径存在
-        import os
-        os.makedirs(save_path, exist_ok=True)
+        # 获取当前日期并创建日期文件夹
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        date_folder = os.path.join(save_path, current_date)
+
+        # 确保日期文件夹存在
+        os.makedirs(date_folder, exist_ok=True)
+
+        # 获取当前时间戳用于文件名
+        timestamp = datetime.now().strftime("%H%M%S")
 
         # 捕获摄像头1
         if self.cap1 is not None and self.cap1.isOpened() and not self.camera1_error:
             try:
                 ret, frame = self.cap1.read()
                 if ret:
-                    filename = f"{save_path}/camera1_{self.photo_index:04d}.jpg"
+                    filename = os.path.join(date_folder, f"camera1_{timestamp}_{self.photo_index:04d}.jpg")
                     cv2.imwrite(filename, frame)
                     captured_count += 1
-                    self.statusBar().showMessage(f"已捕获摄像头1照片: {filename}")
+                    self.statusBar().showMessage(f"已捕获摄像头1照片: {os.path.basename(filename)}")
                 else:
                     QMessageBox.warning(self, "警告", "摄像头1 无法捕获图像")
             except Exception as e:
@@ -429,10 +438,10 @@ class MainWindow(QMainWindow):
             try:
                 ret, frame = self.cap2.read()
                 if ret:
-                    filename = f"{save_path}/camera2_{self.photo_index:04d}.jpg"
+                    filename = os.path.join(date_folder, f"camera2_{timestamp}_{self.photo_index:04d}.jpg")
                     cv2.imwrite(filename, frame)
                     captured_count += 1
-                    self.statusBar().showMessage(f"已捕获摄像头2照片: {filename}")
+                    self.statusBar().showMessage(f"已捕获摄像头2照片: {os.path.basename(filename)}")
                 else:
                     QMessageBox.warning(self, "警告", "摄像头2 无法捕获图像")
             except Exception as e:
@@ -449,10 +458,10 @@ class MainWindow(QMainWindow):
             # 显示成功消息
             if captured_count == 2:
                 QMessageBox.information(self, "成功",
-                    f"成功捕获 2 张照片\n索引: {self.photo_index - 1}\n保存路径: {save_path}")
+                    f"成功捕获 2 张照片\n日期: {current_date}\n索引: {self.photo_index - 1}\n保存路径: {date_folder}")
             else:
                 QMessageBox.information(self, "成功",
-                    f"成功捕获 {captured_count} 张照片\n索引: {self.photo_index - 1}\n保存路径: {save_path}")
+                    f"成功捕获 {captured_count} 张照片\n日期: {current_date}\n索引: {self.photo_index - 1}\n保存路径: {date_folder}")
         else:
             QMessageBox.warning(self, "错误", "没有捕获任何照片")
 
